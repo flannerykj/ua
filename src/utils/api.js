@@ -1,25 +1,58 @@
 import axios from 'axios';
-import { getAccessToken, getIdToken, isLoggedIn } from './AuthService';
+import { isLoggedIn, getIdToken, getUserId} from './AuthService';
 
-const BASE_URL = 'http://localhost:3333';
-const ACCESS_TOKEN = getAccessToken();
+export {getPerformances, getArtists, getArtist, postPerformance, getUserProfile};
 
-export {getFoodData, getCelebrityData};
+const BASE_URL = 'http://localhost:8000';
+const USER_ID = getUserId()
+const ID_TOKEN = getIdToken()
 
-function getFoodData() {
-  const url = `${BASE_URL}/api/jokes/food`;
+function getPerformances() {
+  const url = `${BASE_URL}/performances/`;
   return axios.get(url).then(response => response.data);
 }
 
-function getCelebrityData() {
-  if (isLoggedIn()) {
-    const url = `${BASE_URL}/api/jokes/celebrity`;
-    //debugger; //OK
-    return axios.get(url, {
-            headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }
-          }).then(response => response.data);
-    } else {
-      console.log('not logged in')
-    }
+function getArtists() {
+  const url = `${BASE_URL}/artists/`;
+  return axios.get(url).then(response => response.data);
+}
 
-  }
+function getArtist(id) {
+  const url = `${BASE_URL}/artists/${id}/`;
+  return axios.get(url).then(response => response.data);
+}
+
+function postPerformance(artist_id, comments) {
+  const url = `${BASE_URL}/performances/`;
+  fetch(url, {
+    headers: {
+    'Accept': 'application/json, text/plain, */*',
+    'Content-Type': 'application/json'
+    },
+    method: "POST",
+    body: JSON.stringify({artist: parseInt(artist_id), comments: comments, user: parseInt(USER_ID)})
+  }).then(function(response) {
+      return response.json();
+    }).then(function(data) {
+      console.log("Data is ok", data);
+
+    }).catch(function(ex) {
+    console.log("parsing failed", ex);
+    });
+}
+
+function getUserProfile(userid) {
+  const url = `${BASE_URL}/userprofiles/`+userid;
+  console.log(url)
+  fetch(url, {
+    headers: {
+    'Accept': 'application/json, text/plain, */*',
+    },
+  }).then(function(response) {
+      return response.json();
+    }).then(function(data) {
+      console.log("Data is ok", data);
+    }).catch(function(ex) {
+    console.log("parsing failed", ex);
+    });
+}
